@@ -30,4 +30,6 @@ To run the project, run the following command:
 go run cache.go
 ```
 
+
 ## Roadmap: 
+- [ ] Networking
