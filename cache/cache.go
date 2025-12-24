@@ -1,6 +1,9 @@
-package main
+package cache
 
-import "fmt"
+import (
+	"fmt"
+)
+
 
 type Node struct { 
     Key string
@@ -119,30 +122,4 @@ func (c *Cache) Get(key string) (string, bool) {
         fmt.Println("Key doesn't exist")
         return "", false
     }
-}
-
-func (c *Cache) Print() {
-    fmt.Println("Cache contents (head to tail):")
-    current := c.head
-    for current != nil {
-        fmt.Printf("  %s: %s\n", current.Key, current.Value)
-        current = current.Next
-    }
-    fmt.Printf("Size: %d/%d\n\n", len(c.data), c.capacity)
-}
-
-func main() {
-    cache := NewCache(3)
-    cache.Set("a:", "apple")
-    cache.Print()
-    cache.Set("b:", "banana")
-    cache.Print()
-    cache.Set("c:", "cherry")
-    cache.Print()    
-    cache.Get("a:")
-    cache.Print()
-    cache.Set("d:", "dragonfruit")
-    cache.Print()
-    cache.Get("b:")
-    cache.Print()
 }
