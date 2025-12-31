@@ -33,3 +33,7 @@ go run cache.go
 
 ## Roadmap: 
 - [ ] Networking
+  - [ ] Simple TCP server
+  - [ ] Parse GET/SET requests
+  - [ ] Call corresponding cache methods
+  - [ ] Error handling
