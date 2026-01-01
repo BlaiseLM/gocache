@@ -122,3 +122,22 @@ func (c *Cache) Get(key string) (string, bool) {
 		return "", false
 	}
 }
+
+func (c *Cache) Delete(key string) { 
+	if key == "" {
+		fmt.Println("Key cannot be empty")
+		return
+	}
+	node, ok := c.data[key]
+	if ok {
+		if node == nil {
+			fmt.Println("Node is null")
+			return
+		}
+		c.removeNode(node)
+		delete(c.data, key)
+	} else {
+		fmt.Println("Key doesn't exist")
+		return
+	}
+}
