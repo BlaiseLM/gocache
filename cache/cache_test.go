@@ -39,3 +39,14 @@ func TestEviction(t *testing.T){
 		t.Errorf("Error occured while evicting LRU item from cache.")
 	}
 }
+
+func TestDeleteFromCache(t *testing.T){ 
+	cache := NewCache(3)
+	cache.Set("test", "value")
+	cache.Delete("test")
+	_, ok := cache.data["test"] 
+
+	if ok{ 
+		t.Errorf("Error occured while deleting item from cache.")
+	}
+}
