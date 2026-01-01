@@ -3,7 +3,7 @@
 Building a cache server from scratch using Go. 
 
 ## Description
-So far, I've built an in-memory LRU cache. It is implemented using a hash map for O(1) lookups and a doubly linked list for O(1) data manipulation. The map supports two operations, Get() and Set(). Get() returns the value associated with a key. Set() updates the value of a key and/or creates a new key-value pair. The cache uses LRU (Least Recently Used) eviction to remove the item that hasn't been accessed for the longest time when it reaches capacity. 
+So far, I've built an in-memory LRU cache. It is implemented using a hash map for O(1) lookups and a doubly linked list for O(1) data manipulation. The map supports two operations, Get() and Set(). Get() returns the value associated with a key. Set() updates the value of a key and/or creates a new key-value pair. The cache uses LRU (Least Recently Used) eviction to remove the item that hasn't been accessed for the longest time when it reaches capacity. As of 1/1/2026, I built a simple TCP server that handles GET/SET requests. 
 
 ## Getting Started
 
@@ -33,7 +33,8 @@ go run cache.go
 
 ## Roadmap: 
 - [ ] Networking
-  - [ ] Simple TCP server
-  - [ ] Parse GET/SET requests
-  - [ ] Call corresponding cache methods
+  - [X] Simple TCP server
+  - [X] Parse GET/SET requests
+  - [X] Call corresponding cache methods
   - [ ] Error handling
+  - [ ] Handle Race Conditions
