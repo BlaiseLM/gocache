@@ -3,6 +3,8 @@ package cache
 import (
 	"reflect"
 	"testing"
+	"sync"
+	"fmt"
 )
 
 func TestSetToCache(t *testing.T){ 
@@ -49,4 +51,37 @@ func TestDeleteFromCache(t *testing.T){
 	if ok{ 
 		t.Errorf("Error occured while deleting item from cache.")
 	}
+}
+
+func TestConcurrentAccess(t *testing.T) {
+	cache := NewCache(100)
+
+	var wg sync.WaitGroup
+
+	setOperations := func() { 
+		for i := 0; i < 100; i++{
+			key := fmt.Sprintf("test%d", i) 
+			value := fmt.Sprintf("value%d", i)
+			cache.Set(key, value)
+		}
+	}
+
+	getOperations := func() { 
+		for j := 0; j < 100; j++{
+			key := fmt.Sprintf("test%d", j) 
+			cache.Get(key)
+		}
+	}
+
+	for k := 0; k < 10; k++{ 
+		wg.Add(1)
+		go func(){ 
+			defer wg.Done()
+
+			setOperations()
+			getOperations()
+		}()
+	}
+
+	wg.Wait()
 }
