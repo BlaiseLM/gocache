@@ -15,7 +15,7 @@ func TestSetToCache(t *testing.T){
 	result := cache.data["test"]
 
 	if !reflect.DeepEqual(node, result){ 
-		t.Errorf("Error occured while adding item to cache. Expected: %v, Got: %v", node, result)
+		t.Errorf("Error occurred while adding item to cache. Expected: %v, Got: %v", node, result)
 	}
 }
 
@@ -26,7 +26,7 @@ func TestGetFromCache(t *testing.T){
 	result, ok := cache.Get("test")
 
 	if result != "value" || !ok{ 
-		t.Errorf("Error occured while getting item from cache. Expected: %v, Got: %v", "value", result)
+		t.Errorf("Error occurred while getting item from cache. Expected: %v, Got: %v", "value", result)
 	}
 }
 
@@ -38,7 +38,7 @@ func TestEviction(t *testing.T){
 	cache.Set("test4", "value4")
 
 	if cache.tail.Key == "test1" || cache.capacity != 3{ 
-		t.Errorf("Error occured while evicting LRU item from cache.")
+		t.Errorf("Error occurred while evicting LRU item from cache.")
 	}
 }
 
@@ -49,7 +49,7 @@ func TestDeleteFromCache(t *testing.T){
 	_, ok := cache.data["test"] 
 
 	if ok{ 
-		t.Errorf("Error occured while deleting item from cache.")
+		t.Errorf("Error occurred while deleting item from cache.")
 	}
 }
 
@@ -59,7 +59,7 @@ func TestDeleteNonExistentKey(t *testing.T) {
 	cache.Delete("nonexistent")
 	_, ok := cache.data["test"]
 	if !ok{ 
-		t.Errorf("Error occured while deleting non-existent key from cache.")
+		t.Errorf("Error occurred while deleting non-existent key from cache.")
 	}	
 }
 
@@ -67,7 +67,7 @@ func TestGetNonExistentKey(t *testing.T) {
 	cache := NewCache(3)
 	_, ok := cache.Get("nonexistent")	
 	if ok{ 
-		t.Errorf("Error occured while getting non-existent key from cache.")
+		t.Errorf("Error occurred while getting non-existent key from cache.")
 	}	
 }
 
@@ -76,7 +76,7 @@ func TestSetEmptyKey(t *testing.T) {
 	cache.Set("", "value")
 	_, ok := cache.data[""]	
 	if ok{
-		t.Errorf("Error occured while setting empty key in cache.")
+		t.Errorf("Error occurred while setting empty key in cache.")
 	}	
 }
 
@@ -84,7 +84,7 @@ func TestGetEmptyKey(t *testing.T) {
 	cache := NewCache(3)
 	_, ok := cache.Get("")
 	if ok{
-		t.Errorf("Error occured while getting empty key from cache.")
+		t.Errorf("Error occurred while getting empty key from cache.")
 	}	
 }
 
@@ -94,7 +94,7 @@ func TestDeleteEmptyKey(t *testing.T) {
 	cache.Delete("")
 	_, ok := cache.data["test"]	
 	if !ok{ 
-		t.Errorf("Error occured while deleting empty key from cache.")
+		t.Errorf("Error occurred while deleting empty key from cache.")
 	}	
 }
 
@@ -104,7 +104,7 @@ func TestSetUpdateValue(t *testing.T) {
 	cache.Set("test", "value2")
 	result, ok := cache.Get("test")
 	if !ok || result != "value2" {
-		t.Errorf("Error occured while updating value for existing key in cache. Expected: %v, Got: %v", "value2", result)
+		t.Errorf("Error occurred while updating value for existing key in cache. Expected: %v, Got: %v", "value2", result)
 	}	
 }
 
@@ -116,7 +116,7 @@ func TestEvictionOrder(t *testing.T) {
 	cache.Set("test3", "value3")	
 	_, ok := cache.Get("test2")
 	if ok {
-		t.Errorf("Error occured while evicting LRU item from cache. 'test2' should have been evicted.")
+		t.Errorf("Error occurred while evicting LRU item from cache. 'test2' should have been evicted.")
 	}	
 }
 
@@ -125,7 +125,7 @@ func TestCapacityZero(t *testing.T) {
 	cache.Set("test", "value")
 	_, ok := cache.Get("test")
 	if ok {
-		t.Errorf("Error occured while handling zero capacity cache. No items should be stored.")
+		t.Errorf("Error occurred while handling zero capacity cache. No items should be stored.")
 	}	
 }
 
@@ -136,10 +136,10 @@ func TestCapacityOne(t *testing.T) {
 	_, ok1 := cache.Get("test1")
 	value2, ok2 := cache.Get("test2")
 	if ok1 {
-		t.Errorf("Error occured while handling capacity one cache. 'test1' should have been evicted.")
+		t.Errorf("Error occurred while handling capacity one cache. 'test1' should have been evicted.")
 	}	
 	if !ok2 || value2 != "value2" {
-		t.Errorf("Error occured while handling capacity one cache. 'test2' should be present with correct value.")
+		t.Errorf("Error occurred while handling capacity one cache. 'test2' should be present with correct value.")
 	}
 }
 
@@ -149,7 +149,7 @@ func TestFlushCache(t *testing.T) {
 	cache.Set("test2", "value2")
 	cache.Flush()
 	if len(cache.data) != 0 {
-		t.Errorf("Error occured while flushing the cache. Cache should be empty.")
+		t.Errorf("Error occurred while flushing the cache. Cache should be empty.")
 	}	
 }
 
@@ -157,7 +157,7 @@ func TestFlushEmptyCache(t *testing.T) {
 	cache := NewCache(3)
 	cache.Flush()
 	if len(cache.data) != 0 {
-		t.Errorf("Error occured while flushing an already empty cache. Cache should remain empty.")
+		t.Errorf("Error occurred while flushing an already empty cache. Cache should remain empty.")
 	}	
 }
 
