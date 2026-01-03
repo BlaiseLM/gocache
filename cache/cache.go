@@ -1,5 +1,9 @@
 package cache
 
+import (
+	"sync"
+)
+
 type Node struct {
 	Key   string
 	Value string
@@ -19,6 +23,7 @@ func NewNode(key string, value string, next *Node, prev *Node) *Node {
 type Cache struct {
 	capacity int
 	data     map[string]*Node
+	mu 		 sync.RWMutex
 	head     *Node
 	tail     *Node
 }
@@ -73,9 +78,11 @@ func (c *Cache) removeNode(node *Node) {
 }
 
 func (c *Cache) Set(key, value string) {
-	if key == "" {
+	if key == "" || c.capacity == 0 {
 		return
 	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
@@ -97,9 +104,11 @@ func (c *Cache) Set(key, value string) {
 }
 
 func (c *Cache) Get(key string) (string, bool) {
-	if key == "" {
+	if key == "" || c.capacity == 0 {
 		return "", false
 	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
@@ -114,10 +123,12 @@ func (c *Cache) Get(key string) (string, bool) {
 	}
 }
 
-func (c *Cache) Delete(key string) { 
-	if key == "" {
+func (c *Cache) Delete(key string) {
+	if key == "" || c.capacity == 0 {
 		return
 	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
@@ -128,4 +139,12 @@ func (c *Cache) Delete(key string) {
 	} else {
 		return
 	}
+}
+
+func (c *Cache) Flush() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	clear(c.data)
+	c.head = nil
+	c.tail = nil
 }
