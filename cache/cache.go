@@ -1,9 +1,5 @@
 package cache
 
-import (
-	"fmt"
-)
-
 type Node struct {
 	Key   string
 	Value string
@@ -78,13 +74,11 @@ func (c *Cache) removeNode(node *Node) {
 
 func (c *Cache) Set(key, value string) {
 	if key == "" {
-		fmt.Println("Key cannot be empty")
 		return
 	}
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
-			fmt.Println("Node cannot be null")
 			return
 		}
 		c.removeNode(node)
@@ -104,13 +98,11 @@ func (c *Cache) Set(key, value string) {
 
 func (c *Cache) Get(key string) (string, bool) {
 	if key == "" {
-		fmt.Println("Key cannot be empty")
 		return "", false
 	}
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
-			fmt.Println("Node is null")
 			return "", false
 		}
 		value := node.Value
@@ -118,26 +110,22 @@ func (c *Cache) Get(key string) (string, bool) {
 		c.addToFront(node)
 		return value, true
 	} else {
-		fmt.Println("Key doesn't exist")
 		return "", false
 	}
 }
 
 func (c *Cache) Delete(key string) { 
 	if key == "" {
-		fmt.Println("Key cannot be empty")
 		return
 	}
 	node, ok := c.data[key]
 	if ok {
 		if node == nil {
-			fmt.Println("Node is null")
 			return
 		}
 		c.removeNode(node)
 		delete(c.data, key)
 	} else {
-		fmt.Println("Key doesn't exist")
 		return
 	}
 }
