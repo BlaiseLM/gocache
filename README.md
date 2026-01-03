@@ -1,40 +1,132 @@
-# Go Cache
+# GoCache
 
-Building a cache server from scratch using Go. 
+A thread-safe, network-accessible LRU cache server written in Go.
 
-## Description
-So far, I've built an in-memory LRU cache. It is implemented using a hash map for O(1) lookups and a doubly linked list for O(1) data manipulation. The map supports two operations, Get() and Set(). Get() returns the value associated with a key. Set() updates the value of a key and/or creates a new key-value pair. The cache uses LRU (Least Recently Used) eviction to remove the item that hasn't been accessed for the longest time when it reaches capacity. As of 1/1/2026, I built a simple TCP server that handles GET/SET requests. As of 2/1/2026, I discovered a protocol mismatch. 
+## Overview
+
+GoCache is a from-scratch implementation of a distributed cache system featuring:
+- **LRU eviction policy** - Automatically removes least recently used items when at capacity
+- **Thread-safe operations** - Handles concurrent access from multiple clients
+- **TCP network protocol** - Remote access via simple text commands
+- **O(1) operations** - Constant-time get, set, and delete operations
+
+## Architecture
+
+GoCache combines two data structures for optimal performance:
+- **Hash map** - O(1) key lookups
+- **Doubly-linked list** - O(1) insertion, deletion, and LRU ordering
+
+```
+Client → TCP Server → Cache (Hash Map + Doubly-Linked List)
+```
+
+When the cache reaches capacity, it automatically evicts the least recently used item. Every `Get()` or `Set()` operation moves the accessed item to the "most recent" position.
 
 ## Getting Started
 
-### Dependencies
+### Prerequisites
 
-* [Stable version of Go](https://go.dev/dl/)
-  
-### Installing
+* [Go 1.21+](https://go.dev/dl/)
 
-1. Create new local repository: 
-   ```
-   mkdir gocache
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/BlaiseLM/gocache.git
    cd gocache
    ```
-2. Clone remote repository: 
+
+2. Run tests to verify installation:
+   ```bash
+   go test -v
    ```
-    git clone <method> <project-name>.
-   ```
-3. Open project
 
-### Executing program
-To run the project, run the following command:  
-```
-go run cache.go
+### Running the Server
+
+Start the cache server:
+```bash
+go run server.go
 ```
 
+The server will listen on `localhost:8080` by default.
 
-## Roadmap: 
-- [ ] Networking
-  - [X] Simple TCP server
-  - [X] Parse GET/SET requests
-  - [X] Call corresponding cache methods
-  - [x] Error handling
-  - [ ] Handle Race Conditions
+### Usage
+
+Connect to the server using `nc` (netcat) or `telnet`:
+
+```bash
+nc localhost 8080
+```
+
+**Available Commands:**
+
+```
+SET key value    # Store a key-value pair
+GET key          # Retrieve a value by key
+DELETE key       # Remove a key-value pair
+FLUSH            # Clear entire cache
+END              # Close connection
+```
+
+**Example Session:**
+
+```bash
+$ nc localhost 8080
+SET user:1 alice
+OK
+GET user:1
+alice
+GET user:2
+(nil)
+SET user:2 bob
+OK
+DELETE user:1
+OK
+END
+Closing connection
+```
+
+## Testing
+
+Run the test suite:
+```bash
+go test -v
+```
+
+Run with race detection to verify thread safety:
+```bash
+go test -race
+```
+
+## Project Roadmap
+
+### Phase 1: Core LRU Cache ✅ (Completed)
+- [x] Design data structures (hash map + doubly-linked list)
+- [x] Implement `addToFront()` and `removeNode()` helpers
+- [x] Implement `Get()`, `Set()`, `Delete()` operations
+- [x] Unit tests for edge cases and eviction order
+
+### Phase 2: Network Protocol ✅ (Completed)
+- [x] TCP server listening on port 8080
+- [x] Command parsing (GET, SET, DELETE, FLUSH)
+- [x] Multiple commands per connection
+- [x] Error handling and validation
+
+### Phase 3: Thread Safety ✅ (Completed)
+- [x] Identify race conditions with `go test -race`
+- [x] Add mutex locking to all operations
+- [x] Concurrent access testing
+- [x] Verify thread safety under load
+
+### Phase 4: Production Features 🚧 (In Progress)
+- [ ] Metrics (hit rate, request counts, evictions)
+- [ ] Benchmarking suite
+- [ ] Graceful shutdown
+- [ ] Configuration file support
+
+### Future Enhancements (Optional)
+- [ ] TTL (time-to-live) expiration
+- [ ] Persistence (snapshot to disk)
+- [ ] Client library
+- [ ] HTTP REST API
+- [ ] Distributed mode (multiple nodes)
