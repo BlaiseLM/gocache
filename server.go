@@ -61,10 +61,24 @@ func handleConnection(connection net.Conn, cache *cache.Cache) {
 			value := request[2]
 			cache.Set(key, value)
 			connection.Write([]byte("OK\n"))  
+		case "delete" :
+			if len(request) < 2 {
+				connection.Write([]byte("ERROR: DELETE requires a key\n"))
+				continue
+			}
+			key := request[1]
+			cache.Delete(key)
+			connection.Write([]byte("OK\n"))
+		case "flush" : 
+			if len(request) > 1 { 
+				connection.Write([]byte("ERROR: FLUSH doesn't require key and/or value\n"))
+				continue
+			}
+			cache.Flush()
+			connection.Write([]byte("OK\n"))
 		case "end" : 
 			connection.Write([]byte("Closing connection\n"))
 			return
-
 		default: 
 			connection.Write([]byte("ERROR: Unknown command\n"))
 		}	
