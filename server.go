@@ -5,6 +5,8 @@ import (
 	"log"
 	"net"
 	"strings"
+	"strconv"
+	"fmt"
 )
 
 func main() {
@@ -76,6 +78,25 @@ func handleConnection(connection net.Conn, cache *cache.Cache) {
 			}
 			cache.Flush()
 			connection.Write([]byte("OK\n"))
+
+		case "stats":
+			if len(request) > 1 {
+				connection.Write([]byte("ERROR: STATS doesn't require key and/or value\n"))
+				continue
+			}
+			stats := cache.GetMetrics()
+			hitRate := stats.GetHitRate()
+			statsResponse := "Total Sets: " +  strconv.FormatInt(stats.Sets, 10) + "\n" +
+				"Total Gets: " + strconv.FormatInt(stats.Gets, 10) + "\n" +
+				"Total Hits: " + strconv.FormatInt(stats.Hits, 10) + "\n" +
+				"Total Misses: " + strconv.FormatInt(stats.Misses, 10) + "\n" +
+				"Total Deletes: " + strconv.FormatInt(stats.Deletes, 10) + "\n" + 
+				"Total Flushes: " + strconv.FormatInt(stats.Flushes, 10) + "\n" +    
+				"Hit Rate: " + fmt.Sprintf("%.2f", hitRate) + "%\n" +
+				"Total Evictions: " + strconv.FormatInt(stats.Evictions, 10) + "\n" +
+				"Current Size: " + strconv.FormatInt(stats.Size, 10) + "\n" +
+				"Capacity: " + strconv.FormatInt(stats.Capacity, 10) + "\n"
+			connection.Write([]byte(statsResponse))
 		case "end":
 			connection.Write([]byte("Closing connection\n"))
 			return
