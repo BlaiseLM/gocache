@@ -118,7 +118,7 @@ go test -race
 - [x] Concurrent access testing
 - [x] Verify thread safety under load
 
-### Phase 4: Production Features (2/4)
+### Phase 4: Production Features (2/5)
 - [X] Metrics (hit rate, request counts, evictions)
 - [X] Benchmarking suite (Prometheus, HTTP Exposition)
 - [ ] Grafana
@@ -133,4 +133,5 @@ go test -race
 - [ ] Distributed mode (multiple nodes)
 
 General Todo: 
-- [] Edge case handling for server requests
+
+- [ ] Edge case handling for server requests
