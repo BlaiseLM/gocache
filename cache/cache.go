@@ -1,57 +1,61 @@
 package cache
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
 	"sync"
-	"sync/atomic"
 )
 
-type Metrics struct { 
-	TotalSetRequests 		int64
-	TotalGetRequests 		int64
-	TotalDeleteRequests 	int64
-	TotalFlushRequests		int64
-	TotalCacheHits			int64
-	TotalCacheMiss			int64
-	TotalEvictions			int64
+type Metrics struct {
+	TotalSetRequests    prometheus.Counter
+	TotalGetRequests    prometheus.Counter
+	TotalDeleteRequests prometheus.Counter
+	TotalFlushRequests  prometheus.Counter
+	TotalCacheHits      prometheus.Counter
+	TotalCacheMisses    prometheus.Counter
+	TotalEvictions      prometheus.Counter
 }
 
-func (c *Cache) GetMetrics() Stats { 
-	c.mu.RLock()
-	size := len(c.data)
-	c.mu.RUnlock()
-
-	return Stats{ 
-		Sets : atomic.LoadInt64(&c.me.TotalSetRequests), 
-		Gets: atomic.LoadInt64(&c.me.TotalGetRequests), 
-		Deletes: atomic.LoadInt64(&c.me.TotalDeleteRequests), 
-		Flushes: atomic.LoadInt64(&c.me.TotalFlushRequests), 
-		Hits: atomic.LoadInt64(&c.me.TotalCacheHits), 
-		Misses: atomic.LoadInt64(&c.me.TotalCacheMiss), 
-		Evictions: atomic.LoadInt64(&c.me.TotalEvictions),
-		Size: int64(size), 
-		Capacity: int64(c.capacity), 
+func NewMetrics(reg prometheus.Registerer) *Metrics {
+	m := &Metrics{
+		TotalSetRequests: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_set_requests",
+			Help: "Number of set requests.",
+		}),
+		TotalGetRequests: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_get_requests",
+			Help: "Number of get requests.",
+		}),
+		TotalDeleteRequests: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_delete_requests",
+			Help: "Number of delete requests.",
+		}),
+		TotalFlushRequests: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_flush_requests",
+			Help: "Number of flush requests.",
+		}),
+		TotalCacheHits: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_cache_hits",
+			Help: "Number of cache hits.",
+		}),
+		TotalCacheMisses: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_cache_misses",
+			Help: "Number of cache misses.",
+		}),
+		TotalEvictions: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "total_evictions",
+			Help: "Number of evictions.",
+		}),
 	}
-}
-
-type Stats struct {
-	Sets    	int64
-	Gets    	int64
-	Deletes 	int64
-	Flushes 	int64
-	Hits    	int64
-	Misses  	int64
-	Evictions	int64
-	Size  		int64
-	Capacity 	int64
-} 
-
-func (s Stats) GetHitRate() float64{ 
-	hits := s.Hits
-	total := s.Hits + s.Misses
-	if total == 0 { 
-		return 0 
-	}
-	return float64(hits) / float64(total) *100
+	reg.MustRegister(
+		m.TotalSetRequests,
+		m.TotalGetRequests,
+		m.TotalDeleteRequests,
+		m.TotalFlushRequests,
+		m.TotalCacheHits,
+		m.TotalCacheMisses,
+		m.TotalEvictions,
+	)
+	return m
 }
 
 type Node struct {
@@ -74,16 +78,16 @@ type Cache struct {
 	capacity int
 	data     map[string]*Node
 	mu       sync.RWMutex
-	me 		 *Metrics
+	me       *Metrics
 	head     *Node
 	tail     *Node
 }
 
-func NewCache(capacity int) *Cache {
+func NewCache(capacity int, reg prometheus.Registerer) *Cache {
 	return &Cache{
 		capacity: capacity,
 		data:     make(map[string]*Node),
-		me:  &Metrics{}, 
+		me:       NewMetrics(reg),
 		head:     nil,
 		tail:     nil,
 	}
@@ -133,13 +137,10 @@ func (c *Cache) Set(key, value string) {
 	if key == "" || c.capacity == 0 {
 		return
 	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
 	node, ok := c.data[key]
-	atomic.AddInt64(&c.me.TotalSetRequests, 1)
-
+	c.me.TotalSetRequests.Inc()
 	if ok {
 		if node == nil {
 			return
@@ -152,7 +153,7 @@ func (c *Cache) Set(key, value string) {
 			evictKey := c.tail.Key
 			c.removeNode(c.tail)
 			delete(c.data, evictKey)
-			atomic.AddInt64(&c.me.TotalEvictions, 1)
+			c.me.TotalEvictions.Inc()
 		}
 		newNode := NewNode(key, value, nil, nil)
 		c.data[key] = newNode
@@ -164,13 +165,10 @@ func (c *Cache) Get(key string) (string, bool) {
 	if key == "" || c.capacity == 0 {
 		return "", false
 	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
 	node, ok := c.data[key]
-	atomic.AddInt64(&c.me.TotalGetRequests, 1)
-
+	c.me.TotalGetRequests.Inc()
 	if ok {
 		if node == nil {
 			return "", false
@@ -178,10 +176,10 @@ func (c *Cache) Get(key string) (string, bool) {
 		value := node.Value
 		c.removeNode(node)
 		c.addToFront(node)
-		atomic.AddInt64(&c.me.TotalCacheHits, 1)
+		c.me.TotalCacheHits.Inc()
 		return value, true
 	} else {
-		atomic.AddInt64(&c.me.TotalCacheMiss, 1)
+		c.me.TotalCacheMisses.Inc()
 		return "", false
 	}
 }
@@ -190,12 +188,10 @@ func (c *Cache) Delete(key string) {
 	if key == "" || c.capacity == 0 {
 		return
 	}
-
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
 	node, ok := c.data[key]
-	atomic.AddInt64(&c.me.TotalDeleteRequests, 1)
+	c.me.TotalDeleteRequests.Inc()
 
 	if ok {
 		if node == nil {
@@ -211,8 +207,21 @@ func (c *Cache) Delete(key string) {
 func (c *Cache) Flush() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	atomic.AddInt64(&c.me.TotalFlushRequests, 1)
+	c.me.TotalFlushRequests.Inc()
 	clear(c.data)
 	c.head = nil
 	c.tail = nil
+}
+
+// Dummy Prometheus registerer for testing purposes only
+type NoOpRegisterer struct{}
+
+func (n *NoOpRegisterer) Register(prometheus.Collector) error {
+	return nil
+}
+
+func (n *NoOpRegisterer) MustRegister(...prometheus.Collector) {}
+
+func (n *NoOpRegisterer) Unregister(prometheus.Collector) bool {
+	return true
 }
