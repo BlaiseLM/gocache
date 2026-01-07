@@ -121,7 +121,6 @@ go test -race
 ### Phase 4: Production Features (2/5)
 - [X] Metrics (hit rate, request counts, evictions)
 - [X] Benchmarking suite (Prometheus, HTTP Exposition)
-- [ ] Grafana
 - [ ] Graceful shutdown
 - [ ] Configuration file support
 
