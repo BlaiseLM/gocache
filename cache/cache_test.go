@@ -183,19 +183,13 @@ func TestConcurrentAccess(t *testing.T) {
 }
 
 func BenchmarkSetNoEviction(b *testing.B) { 
-    cache := NewCache(1000000, &NoOpRegisterer{}) 
+    cache := NewCache(100000, &NoOpRegisterer{}) 
 	b.ResetTimer()
-	i := 0
-    for b.Loop() {
+    for i := 0; i < b.N; i++ {
 		key := fmt.Sprintf("Key%d", i)
 		value := fmt.Sprintf("Value%d", i)
 		cache.Set(key, value)
-		i++
     }
-	/* 
-	for range b.N: 498.2 ns/op
-	b.Loop(): 573.6 ns/op 
-	*/ 
 }
 
 func BenchmarkSetWithEviction(b *testing.B) { 
@@ -208,17 +202,11 @@ func BenchmarkSetWithEviction(b *testing.B) {
 		}
 	}()
 	b.ResetTimer()
-	j := 1
-	for b.Loop(){
-		key := fmt.Sprintf("Key%d", 1000 + j)
-		value := fmt.Sprintf("Value%d", 1000 + j)
+	for i := 0; i < b.N; i++{
+		key := fmt.Sprintf("Key%d", 1000 + i)
+		value := fmt.Sprintf("Value%d", 1000 + i)
 		cache.Set(key, value)
-		j++
 	}
-	/* 
-	for range b.N: 242.4 ns/op
-	b.Loop(): 250.4 ns/op 
-	*/
 }
 
 func BenchmarkGetHit(b *testing.B) { 
@@ -231,16 +219,10 @@ func BenchmarkGetHit(b *testing.B) {
 		}
 	}()
 	b.ResetTimer()
-	j := 0
-	for b.Loop(){ 
-		key := fmt.Sprintf("Key%d", j % 100)
+	for i := 0; i < b.N; i++{ 
+		key := fmt.Sprintf("Key%d", i % 100)
 		cache.Get(key)
-		j++
 	}
-	/*
-	for range b.N: 101.8 ns/op
-	b.Loop(): 187.6 ns/op
-	*/
 }
 
 func BenchmarkGetMiss(b *testing.B) { 
@@ -253,16 +235,10 @@ func BenchmarkGetMiss(b *testing.B) {
 		}
 	}()
 	b.ResetTimer()
-	j := 0
-	for b.Loop(){ 
-		key := fmt.Sprintf("Key%d", 100 + j)
+	for i := 0; i < b.N; i++{ 
+		key := fmt.Sprintf("Key%d", 100 + i)
 		cache.Get(key)
-		j++
 	}
-	/*
-	for range b.N: 141.7 ns/op
-	b.Loop(): 156.2  ns/op
-	*/
 }
 
 func BenchmarkConcurrent(b *testing.B){ 
@@ -279,7 +255,4 @@ func BenchmarkConcurrent(b *testing.B){
             i++
         }
     })
-	/*
-	381.6 ns/op
-	*/
 }
