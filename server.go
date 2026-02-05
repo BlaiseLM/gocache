@@ -4,19 +4,39 @@ import (
 	"github.com/BlaiseLM/gocache/cache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 )
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("WARNING: Unable to load .env [%v]\n", err)
+	}
+}
+
 func main() {
-	cache := cache.NewCache(1024, prometheus.DefaultRegisterer)
+	capacity, err := strconv.Atoi(os.Getenv("CAPACITY"))
+	if err != nil {
+		log.Fatalf("FATAL ERROR: Invalid CAPACITY value in .env [%v]\n", err)
+	}
+
+	bufferSize, err := strconv.Atoi(os.Getenv("BUFFER_SIZE"))
+	if err != nil {
+		log.Fatalf("FATAL ERROR: Invalid BUFFER_SIZE value in .env [%v]\n", err)
+	}
+
+	cache := cache.NewCache(capacity, prometheus.DefaultRegisterer)
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		log.Fatal(http.ListenAndServe(":8081", nil))
+		log.Fatal(http.ListenAndServe(os.Getenv("P_ADDR"), nil))
 	}()
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", os.Getenv("C_ADDR"))
 	if err != nil {
 		log.Fatalf("FATAL ERROR: Unable to start server [%v]\n", err)
 	}
@@ -26,14 +46,14 @@ func main() {
 			log.Printf("ERROR: Failed to accept connection [%v]\n", err)
 			continue
 		}
-		go handleConnection(connection, cache)
+		go handleConnection(connection, cache, bufferSize)
 	}
 }
 
-func handleConnection(connection net.Conn, cache *cache.Cache) {
+func handleConnection(connection net.Conn, cache *cache.Cache, bufferSize int) {
 	defer connection.Close()
 	for {
-		buffer := make([]byte, 4096)
+		buffer := make([]byte, bufferSize)
 		read, err := connection.Read(buffer)
 		if err != nil {
 			log.Printf("ERROR: Unable to read requests [%v]", err)
