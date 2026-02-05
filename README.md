@@ -9,6 +9,7 @@ GoCache is a from-scratch implementation of a distributed cache system featuring
 - **LRU eviction policy** - Automatically removes least recently used items when at capacity
 - **Thread-safe operations** - Handles concurrent access from multiple clients
 - **TCP network protocol** - Remote access via simple text commands
+- **Prometheus metrics** - Exposes cache metrics for monitoring
 - **O(1) operations** - Constant-time get, set, and delete operations
 
 ## Architecture
@@ -49,7 +50,7 @@ Start the cache server:
 go run server.go
 ```
 
-The server will listen on `localhost:8080` by default.
+The server will listen on `localhost:8080` by default. Prometheus metrics will be available at `localhost:8081/metrics`.
 
 ### Usage
 
@@ -86,6 +87,10 @@ OK
 END
 Closing connection
 ```
+
+## Protocol Details
+
+For important details about the server's protocol and its compatibility with tools like `telnet`, see the [Protocol Documentation](docs/protocol.md).
 
 ## Testing
 
