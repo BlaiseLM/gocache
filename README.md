@@ -3,7 +3,7 @@
 A thread-safe, network-accessible LRU cache server written in Go.
 
 ## Overview
-![GoCache Architecture Diagram](gocache.png)
+![GoCache Architecture Diagram](diagrams/architecture.png)
 
 GoCache is a from-scratch implementation of a distributed cache system featuring:
 - **LRU eviction policy** - Automatically removes least recently used items when at capacity
