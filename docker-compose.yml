@@ -1,4 +1,4 @@
-services: 
+services:
 
   cache: 
     build: .
@@ -7,3 +7,26 @@ services:
     ports: 
       - "8080:8080"
       - "8081:8081"
+
+  prometheus: 
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    container_name: prometheus
+    volumes: 
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports: 
+      - "9090:9090"
+
+  grafana: 
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: grafana
+    volumes: 
+    - grafana-data:/var/lib/grafana
+    ports: 
+      - "3000:3000"
+
+volumes: 
+  prometheus-data: 
+  grafana-data: 
