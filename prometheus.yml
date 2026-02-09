@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'cache-server'
+    static_configs:
+      - targets: ['gocache:8081']
