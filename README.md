@@ -45,7 +45,7 @@ When the cache reaches capacity, it automatically evicts the least recently used
 
 **Hit Rate Performance:**
 
-| Scenario | Keys | Workers | Requests | Expected | Actual | Notes |
+| Scenario | Keys | Workers | Requests | Target Hit Rate | Actual Hit Rate | Notes |
 |----------|------|---------|----------|----------|--------|-------|
 | Accuracy | 512 (50% capacity) | 20 | 100,000 | 80% | **79.93%** | Baseline accuracy |
 | Evictions | 1,100 (107% capacity) | 20 | 100,000 | 80% | **74.31%** | Under eviction pressure |
@@ -70,7 +70,7 @@ When the cache reaches capacity, it automatically evicts the least recently used
 
 2. Build the Docker images:
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
 3. Start the services in detached mode:
@@ -143,6 +143,96 @@ Closing connection
 ## Protocol Details
 
 For important details about the server's protocol and its compatibility with tools like `telnet`, see the [Protocol Documentation](docs/protocol.md).
+
+## Monitoring and Benchmarking
+
+### Quick Start
+
+1. **Start all services:**
+```bash
+   docke compose up -d
+```
+
+2. **Verify services are running:**
+```bash
+   docker ps
+```
+   
+   You should see containers for:
+   - Cache server (port 8080)
+   - Prometheus (ports 8081, 9090)
+   - Grafana (port 3000)
+
+3. **Access the dashboards:**
+   - Cache server: `localhost:8080`
+   - Prometheus metrics endpoint: `localhost:8081/metrics`
+   - Prometheus dashboard: `localhost:9090`
+   - Grafana dashboard: `localhost:3000`
+
+### Setting Up Hit Rate Monitoring
+
+#### Option 1: Prometheus Dashboard (Simple)
+
+1. Navigate to `localhost:9090`
+2. Go to the "Graph" tab
+3. Enter this PromQL query:
+```promql
+   (cache_hits_total / (cache_hits_total + cache_misses_total)) * 100
+```
+4. Click "Execute" to see the current hit rate
+
+#### Option 2: Grafana Dashboard (Recommended)
+
+1. Navigate to `localhost:3000`
+2. Create a new panel or dashboard
+3. Add the same PromQL query:
+```promql
+   (cache_hits_total / (cache_hits_total + cache_misses_total)) * 100
+```
+4. Set the visualization to "Graph" for time-series data
+
+### Running Load Tests
+
+1. **Start the load generator:**
+```bash
+   cd benchmarks
+   ./load_generator.sh -k 1000 -w 20 -h 0.8 -d 300
+```
+   
+   This runs for 5 minutes (300 seconds) with:
+   - 1000 keys
+   - 20 concurrent workers
+   - 80% target hit ratio
+
+2. **Verify metrics are updating:**
+   - Check `localhost:8081/metrics`
+   - Look for `cache_hits_total` and `cache_misses_total` incrementing
+
+3. **Watch the hit rate graph:**
+   - In Prometheus (localhost:9090) or Grafana (localhost:3000)
+   - The graph will update in real-time as the script runs
+   - With Prometheus scraping every 15 seconds, a 5-minute test provides 20 data points
+
+**Note:** Running tests for at least 5 minutes is recommended to get sufficient data points (20+) for accurate hit rate calculations.
+
+### Example Test Scenarios
+
+The benchmark results in this README were generated using:
+
+**Baseline accuracy:**
+```bash
+./load_generator.sh -k 512 -w 20 -h 0.8 -d 300
+```
+
+**Under eviction pressure:**
+```bash
+./load_generator.sh -k 1100 -w 20 -h 0.8 -d 300
+```
+
+**High concurrency:**
+```bash
+./load_generator.sh -k 750 -w 50 -h 0.8 -d 300
+```
 
 ## Testing
 
