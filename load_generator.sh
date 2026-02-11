@@ -198,7 +198,6 @@ trap cleanup SIGINT SIGTERM
 populate_cache
 
 echo "Sending GET requests..."
-echo "Monitor metrics at http://localhost:9090/metrics"
 echo ""
 echo "Press Ctrl+C to stop"
 echo ""
