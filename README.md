@@ -43,7 +43,7 @@ When the cache reaches capacity, it automatically evicts the least recently used
 | Set (eviction) | ~400 ns/op |
 | Concurrent workload | ~370 ns/op |
 
-**Hit Rate Performance:**
+**Hit Rate:**
 
 | Scenario | Keys | Workers | Requests | Target Hit Rate | Actual Hit Rate | Notes |
 |----------|------|---------|----------|----------|--------|-------|
@@ -51,7 +51,7 @@ When the cache reaches capacity, it automatically evicts the least recently used
 | Evictions | 1,100 (107% capacity) | 20 | 100,000 | 80% | **74.31%** | Under eviction pressure |
 | Concurrency | 750 (73% capacity) | 50 | 100,000 | 80% | **80.16%** | High concurrency |
 
-*All scenarios run for 5 minutes with 15-second Prometheus scrape intervals (20 data points)*
+*All scenarios ran for 5 minutes with 15-second Prometheus scrape intervals (20 data points)*
 
 ## Getting Started
 
@@ -68,27 +68,15 @@ When the cache reaches capacity, it automatically evicts the least recently used
    cd gocache
    ```
 
-2. Build the Docker images:
+2. Build the Docker images & run the services (in detached mode):
    ```bash
-   docker compose up --build
+   docker compose up --build -d 
    ```
-
-3. Start the services in detached mode:
-   ```bash
-   docker-compose up -d
-   ```
-   This will start the cache server, Prometheus, and Grafana containers.
-
-4. Verify the services:
+3. Verify the services:
    - Cache server: `localhost:8080`
    - Prometheus metrics: `localhost:8081/metrics`
    - Prometheus dashboard: `localhost:9090`
    - Grafana dashboard: `localhost:3000`
-
-5. (Optional) Run tests locally without Docker:
-   ```bash
-   go test -v
-   ```
 
 ### Running the Server Locally
 
@@ -157,15 +145,13 @@ For important details about the server's protocol and its compatibility with too
 ```bash
    docker ps
 ```
-   
+
    You should see containers for:
-   - Cache server (port 8080)
-   - Prometheus (ports 8081, 9090)
+   - Cache server (ports 8080, 8081)
+   - Prometheus (port 9090)
    - Grafana (port 3000)
 
 3. **Access the dashboards:**
-   - Cache server: `localhost:8080`
-   - Prometheus metrics endpoint: `localhost:8081/metrics`
    - Prometheus dashboard: `localhost:9090`
    - Grafana dashboard: `localhost:3000`
 
@@ -195,10 +181,9 @@ For important details about the server's protocol and its compatibility with too
 
 1. **Start the load generator:**
 ```bash
-   cd benchmarks
    ./load_generator.sh -k 1000 -w 20 -h 0.8 -d 300
 ```
-   
+
    This runs for 5 minutes (300 seconds) with:
    - 1000 keys
    - 20 concurrent workers
@@ -210,7 +195,7 @@ For important details about the server's protocol and its compatibility with too
 
 3. **Watch the hit rate graph:**
    - In Prometheus (localhost:9090) or Grafana (localhost:3000)
-   - The graph will update in real-time as the script runs
+   - The graph will update as the script runs
    - With Prometheus scraping every 15 seconds, a 5-minute test provides 20 data points
 
 **Note:** Running tests for at least 5 minutes is recommended to get sufficient data points (20+) for accurate hit rate calculations.
@@ -244,4 +229,5 @@ go test -v
 Run with race detection to verify thread safety:
 ```bash
 go test -race
+
 ```
