@@ -138,7 +138,7 @@ For important details about the server's protocol and its compatibility with too
 
 1. **Start all services:**
 ```bash
-   docke compose up -d
+   docker compose up -d
 ```
 
 2. **Verify services are running:**
