@@ -190,7 +190,7 @@ For important details about the server's protocol and its compatibility with too
 
 2. **Verify metrics are updating:**
    - Check `localhost:8081/metrics`
-   - Look for `cache_hits_total` and `cache_misses_total` incrementing
+   - Look for `total_cache_hits` and `total_cache_misses` incrementing
 
 3. **Watch the hit rate graph:**
    - In Prometheus (localhost:9090) or Grafana (localhost:3000)
