@@ -159,7 +159,7 @@ For important details about the server's protocol and its compatibility with too
 
 #### Option 1: Prometheus Dashboard (Simple)
 
-1. Navigate to `localhost:9090`
+1. Navigate to `localhost:9090/query`
 2. Enter this PromQL query:
 ```promql
    (total_cache_hits / (total_cache_hits + total_cache_misses)) * 100
@@ -169,12 +169,15 @@ For important details about the server's protocol and its compatibility with too
 #### Option 2: Grafana Dashboard (Recommended)
 
 1. Navigate to `localhost:3000`
-2. Create a new panel or dashboard
-3. Add the same PromQL query:
+2. Create a new dashboard
+3. Select Prometheus as data source
+4. Select "Time series" visualization
+5. Toggle "Code"
+6. Add the same PromQL query:
 ```promql
    (total_cache_hits / (total_cache_hits + total_cache_misses)) * 100
 ```
-4. Set the visualization to "Graph" for time-series data
+7. Click "Run queries"
 
 ### Running Load Tests
 
