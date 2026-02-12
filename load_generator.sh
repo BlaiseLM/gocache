@@ -198,6 +198,7 @@ trap cleanup SIGINT SIGTERM
 populate_cache
 
 echo "Sending GET requests..."
+echo ""
 echo "Press Ctrl+C to stop"
 echo ""
 

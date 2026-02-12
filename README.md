@@ -138,7 +138,7 @@ For important details about the server's protocol and its compatibility with too
 
 1. **Start all services:**
 ```bash
-   docke compose up -d
+   docker compose up -d
 ```
 
 2. **Verify services are running:**
@@ -160,12 +160,11 @@ For important details about the server's protocol and its compatibility with too
 #### Option 1: Prometheus Dashboard (Simple)
 
 1. Navigate to `localhost:9090`
-2. Go to the "Graph" tab
-3. Enter this PromQL query:
+2. Enter this PromQL query:
 ```promql
-   (cache_hits_total / (cache_hits_total + cache_misses_total)) * 100
+   (total_cache_hits / (total_cache_hits + total_cache_misses)) * 100
 ```
-4. Click "Execute" to see the current hit rate
+3. Click "Execute" to see the current hit rate
 
 #### Option 2: Grafana Dashboard (Recommended)
 
@@ -173,7 +172,7 @@ For important details about the server's protocol and its compatibility with too
 2. Create a new panel or dashboard
 3. Add the same PromQL query:
 ```promql
-   (cache_hits_total / (cache_hits_total + cache_misses_total)) * 100
+   (total_cache_hits / (total_cache_hits + total_cache_misses)) * 100
 ```
 4. Set the visualization to "Graph" for time-series data
 
@@ -191,7 +190,7 @@ For important details about the server's protocol and its compatibility with too
 
 2. **Verify metrics are updating:**
    - Check `localhost:8081/metrics`
-   - Look for `cache_hits_total` and `cache_misses_total` incrementing
+   - Look for `total_cache_hits` and `total_cache_misses` incrementing
 
 3. **Watch the hit rate graph:**
    - In Prometheus (localhost:9090) or Grafana (localhost:3000)
@@ -231,3 +230,4 @@ Run with race detection to verify thread safety:
 go test -race
 
 ```
+
