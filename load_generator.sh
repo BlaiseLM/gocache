@@ -18,7 +18,7 @@ Usage: $0 [options]
 This tool populates the cache and generates load for monitoring via Prometheus/Grafana.
 
 Options:
-  -a, --addr       Server address (default: localhost:6379)
+  -a, --addr       Server address (default: localhost:8080)
   -k, --keys       Number of keys to populate (default: 1000)
   -r, --requests   Number of GET requests per worker (default: 0 = continuous)
   -h, --hit-ratio  Hit ratio 0.0-1.0 (default: 0.8)
