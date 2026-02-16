@@ -77,7 +77,7 @@ func NewNode(key string, value string, next *Node, prev *Node) *Node {
 type Cache struct {
 	capacity int
 	data     map[string]*Node
-	mu       sync.RWMutex
+	mu       sync.Mutex
 	me       *Metrics
 	head     *Node
 	tail     *Node
