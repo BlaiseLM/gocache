@@ -234,3 +234,6 @@ go test -race
 
 ```
 
+## Community Suggested Improvements
+- [ ] Sentinel errors
+- [ ] Decouple metrics from cache struct
