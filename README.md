@@ -233,7 +233,3 @@ Run with race detection to verify thread safety:
 go test -race
 
 ```
-
-## Community Suggested Improvements
-- [ ] Sentinel errors
-- [ ] Decouple metrics from cache struct
